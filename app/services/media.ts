@@ -6,7 +6,7 @@ export class Media {
     private baseUrlImage: string
 
     constructor(){
-        this.baseUrl        = "http://localhost:8080"
+        this.baseUrl        = "https://watchapi.xoailac.top"
         this.baseUrlOphim   = "https://ophim1.com/v1/api/phim/"
         this.baseUrlImage   = "https://img.ophim.live/uploads/movies/"
     }
