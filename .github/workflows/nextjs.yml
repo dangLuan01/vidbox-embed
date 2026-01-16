@@ -1,0 +1,37 @@
+name: CI/CD for Vidhub-Embed App
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 🚀 Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            echo "🔄 Pulling latest code ..."
+            cd /home/${{secrets.VPS_USER}}/vidhub/vidbox-embed
+            git reset --hard
+            git pull origin main
+            echo "🐳 Restarting Docker ontainers...."
+            docker compose build
+            docker compose up -d --remove-orphans
+            echo "🧹 Cleaning up Docker cache and old images..."
+            docker builder prune -af
+            docker image prune -f
+            echo "✅ Deploy complete!"
+      - name: 📢 Notify to Telegram
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode=Markdown \
+          -d text="✅ *Deploy thành công!* \nRepo: \`${{ github.repository }}\`\nBranch: \`${{ github.ref_name }}\`\nCommit: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
