@@ -89,3 +89,32 @@ body {
   font-size: 18px;
 }
 
+.jw-title-primary {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.jw-title-secondary {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.jw-title {
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+.jw-title {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+

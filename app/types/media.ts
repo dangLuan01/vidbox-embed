@@ -16,3 +16,10 @@ export interface Episode {
     link_m3u8: string
 }
 
+export interface Subtitle {
+    url: string,
+    display: string,
+    kind: string,
+    language: string
+}
+

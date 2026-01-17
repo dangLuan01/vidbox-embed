@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { MediaDetail } from "@/app/types/media"
+import { MediaDetail, Subtitle } from "@/app/types/media"
 
 declare global {
   interface Window {
@@ -24,8 +24,11 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
       file: media.servers[0].server_data[0].link_m3u8,
       width: "100%",
       image: media.backdrop,
-      aspectratio: "16:9",
+      //aspectratio: "21:9",
+      stretching: "fill",
       playbackRateControls: true,
+      
+      //tracks: subtitles
     })
 
     instance.on("beforePlay", () => { 
@@ -64,7 +67,12 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
         item.className = "jw-server-item"
         item.innerText = server.server_name
         item.onclick = () => {
-          instance.load([{ file: server.server_data[0].link_m3u8 }])
+          instance.load([{ 
+            file: server.server_data[0].link_m3u8,
+            stretching: "fill",
+            playbackRateControls: true,
+            //tracks: subtitles
+          }])
           instance.play()
           overlay.classList.remove("active")
         }

@@ -8,8 +8,9 @@ export default async function Movie({
   params: Promise<{ tmdb_id: string }>
 }) {
   const { tmdb_id } = await params
-  const service = new Media()
-  const data = await service.getMovieSlug(tmdb_id)
-
+  const service     = new Media()
+  const data        = await service.getMovieSlug(tmdb_id)
+  //const subtitles   = await service.getMovieSubtitle(tmdb_id)
+  
   return <ClientPlayer media={data} tmdb_id={tmdb_id}/>
 }
