@@ -137,7 +137,7 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
 
 
   return (
-    <div className="player-page" style={{ position: "relative" }}>
+    <div>
       <div ref={ref} className="jw-wrapper" />
     </div>
   )

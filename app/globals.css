@@ -28,13 +28,13 @@ body {
 }
 
 .player-page {
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 
 .jw-wrapper {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: black;
+  /* width: 100%; */
+  /* aspect-ratio: 16 / 9; */
+  /* background: black; */
 }
 
 #jw-server-overlay {
@@ -94,3 +94,4 @@ body {
   color: #fff;
   font-size: 18px;
 }
+
