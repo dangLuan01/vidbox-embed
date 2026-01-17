@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Episode, MediaDetail } from "@/app/types/media"
+import { Episode, MediaDetail, Subtitle } from "@/app/types/media"
 
 declare global {
   interface Window {
@@ -18,7 +18,7 @@ export default function PlayerTv({
   media: MediaDetail,
   tmdb_id: string,
   season: string,
-  episode: string
+  episode: string,
 }) {
   const ref = useRef<HTMLDivElement>(null)
   
@@ -39,8 +39,10 @@ export default function PlayerTv({
       file: currentEp?.link_m3u8,
       width: "100%",
       image: media.backdrop,
-      aspectratio: "16:9",
+      stretching: "fill",
+      // aspectratio: "16:9",
       playbackRateControls: true,
+      //tracks: subtitles,
     })
     
     instance.on("beforePlay", () => { 
@@ -87,7 +89,12 @@ export default function PlayerTv({
         item.innerText = server.server_name
 
         item.onclick = () => {
-          instance.load([{ file: ep.link_m3u8 }])
+          instance.load([{ 
+            file: ep.link_m3u8,
+            playbackRateControls: true,
+            stretching: "fill",
+            //tracks: subtitles,
+          }])
           instance.play()
           overlay.classList.remove("active")
         }

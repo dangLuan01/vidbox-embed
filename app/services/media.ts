@@ -1,7 +1,8 @@
-import { Episode, MediaDetail, Server } from "../types/media"
+import { Episode, MediaDetail, Server, Subtitle } from "../types/media"
 
 export class Media {
     private baseUrl: string
+    private baseUrlSub: string
     private baseUrlOphim: string
     private baseUrlImage: string
 
@@ -9,6 +10,7 @@ export class Media {
         this.baseUrl        = "https://watchapi.xoailac.top"
         this.baseUrlOphim   = "https://ophim1.com/v1/api/phim/"
         this.baseUrlImage   = "https://img.ophim.live/uploads/movies/"
+        this.baseUrlSub     = "https://sub.wyzie.ru/search?"
     }
 
     private async request(url: string, endpoint: string) {
@@ -20,8 +22,8 @@ export class Media {
                 next: { revalidate: 600 }
             }) 
 
-            if (!res.ok) { 
-                throw new Error(`Failed to fetch ${endpoint}`) 
+            if (!res.ok) {
+                return
             }
             
             return await res.json() 
@@ -55,5 +57,29 @@ export class Media {
         }
 
         return safeData as MediaDetail
+    }
+
+    async getTvSubtitle(tmdb_id: string, season: string, episode: string): Promise<Subtitle[]> {
+        const resp = await this.request(this.baseUrlSub, `id=${tmdb_id}&season=${season}&episode=${episode}`)    
+        const safeData: Subtitle[] = resp?.map((s: Subtitle) => ({
+            file: s.url,
+            label: s.display,
+            kind: "captions",
+            language: s.language
+        }))
+        
+        return safeData as Subtitle[] || []
+    }
+
+    async getMovieSubtitle(tmdb_id: string): Promise<Subtitle[]> {
+        const resp = await this.request(this.baseUrlSub, `id=${tmdb_id}`)    
+        const safeData: Subtitle[] = resp?.map((s: Subtitle) => ({
+            file: s.url,
+            label: s.display,
+            kind: "captions",
+            language: s.language
+        }))
+        
+        return safeData as Subtitle[] || []
     }
 }
