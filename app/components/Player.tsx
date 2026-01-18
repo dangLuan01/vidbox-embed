@@ -68,6 +68,7 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
         item.innerText = server.server_name
         item.onclick = () => {
           instance.load([{ 
+            title: media.name,
             file: server.server_data[0].link_m3u8,
             //stretching: "fill",
             playbackRateControls: true,
