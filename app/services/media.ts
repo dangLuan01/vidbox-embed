@@ -42,9 +42,10 @@ export class Media {
 
 
     async getMovieSlug(tmdb_id: string): Promise<MediaDetail> {
-        const data = await this.request(this.baseUrl, `/api/v1/movie/${tmdb_id}`)
-        const ophimData = await this.getStreamingOphimWithSlug(data.results.ophim_slug)
-        const kkphimData = await this.getStreamingKKphimWithSlug(data.results.kkphim_slug)
+        const data          = await this.request(this.baseUrl, `/api/v1/movie/${tmdb_id}`)
+        const ophimData     = await this.getStreamingOphimWithSlug(data.results.ophim_slug)
+        const kkphimData    = data.results.kkphim_slug ? 
+        await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
 
         return {
             ...ophimData,
@@ -71,7 +72,7 @@ export class Media {
 
     async getStreamingOphimWithSlug(slug: string): Promise<MediaDetail> {
         const resp = await this.request(this.baseUrlOphim, slug)
-
+        
         const safeData: MediaDetail = {
             name: resp.data.item.name,
             backdrop: this.baseUrlImage + resp.data.item.poster_url,
@@ -83,7 +84,7 @@ export class Media {
 
     async getStreamingKKphimWithSlug(slug: string): Promise<Server[]> {
         const resp = await this.request(this.baseUrlKKphim, slug)
-
+        
         const safeData: Server[] = resp.episodes.map((s: Server) => ({
             server_name: s.server_name,
             server_data: s.server_data.map((ep: Episode) => ({
