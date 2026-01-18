@@ -24,8 +24,8 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
       file: media.servers[0].server_data[0].link_m3u8,
       width: "100%",
       image: media.backdrop,
-      //aspectratio: "21:9",
-      stretching: "fill",
+      aspectratio: "16:9",
+      //stretching: "fill",
       playbackRateControls: true,
       
       //tracks: subtitles
@@ -69,7 +69,7 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
         item.onclick = () => {
           instance.load([{ 
             file: server.server_data[0].link_m3u8,
-            stretching: "fill",
+            //stretching: "fill",
             playbackRateControls: true,
             //tracks: subtitles
           }])
