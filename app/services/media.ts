@@ -59,7 +59,8 @@ export class Media {
     async getTvSlug(tmdb_id: string, season: string): Promise<MediaDetail> {
         const data = await this.request(this.baseUrl, `/api/v1/tv/${tmdb_id}/${season}`)
         const ophimData = await this.getStreamingOphimWithSlug(data.results.ophim_slug)
-        const kkphimData = await this.getStreamingKKphimWithSlug(data.results.kkphim_slug)
+        const kkphimData    = data.results.kkphim_slug ? 
+        await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
 
         return {
             ...ophimData,
