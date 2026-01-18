@@ -39,8 +39,8 @@ export default function PlayerTv({
       file: currentEp?.link_m3u8,
       width: "100%",
       image: media.backdrop,
-      stretching: "fill",
-      // aspectratio: "16:9",
+      //stretching: "fill",
+      aspectratio: "16:9",
       playbackRateControls: true,
       //tracks: subtitles,
     })
@@ -92,7 +92,7 @@ export default function PlayerTv({
           instance.load([{ 
             file: ep.link_m3u8,
             playbackRateControls: true,
-            stretching: "fill",
+            //stretching: "fill",
             //tracks: subtitles,
           }])
           instance.play()
