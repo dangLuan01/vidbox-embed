@@ -35,13 +35,33 @@ export class Media {
         }
     }
 
+    private async requestTmdb(url: string, endpoint: string) {
+        try { 
+            const res = await fetch(`${url}${endpoint}?api_key=${process.env.API_TMDB}&language=en-US`, { 
+                headers: { 
+                    // "X-API-KEY": `${process.env.API_KEY}`,
+                },
+                next: { revalidate: 600 }
+            }) 
+
+            if (!res.ok) {
+                return
+            }
+            
+            return await res.json() 
+        } catch (error) { 
+            console.error("API error:", error) 
+            return null 
+        }
+    }
+
     private parseEpisodeSlug(slug: string): string {
         const number = slug.match(/\d+/g)?.join('')
         return number ? String(Number(number)) : slug
     }
 
     async getMediaInfo(tmdb_id: string, media_type: string): Promise<Info> {
-        const data  = await this.request(this.baseUrlApi, `/${media_type}/${tmdb_id}?api_key=ef311eb0b9b07b9c73e9fb0a732cc150&language=en-US`)
+        const data  = await this.requestTmdb(this.baseUrlApi, `/${media_type}/${tmdb_id}`)
         const safeData: Info = {
             name: data.title ? data.title : data.name,
             backdrop: data.backdrop_path
