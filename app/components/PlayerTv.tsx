@@ -35,7 +35,7 @@ export default function PlayerTv({
 
     instance.setup({
       key: "ITWMv7t88JGzI0xPwW8I0+LveiXX9SWbfdmt0ArUSyc=",
-      title: media.name + " / (E" + episode +")",
+      title: "Watching: "+ media.name + " / (S" +season+ " | E" + episode +")",
       file: currentEp?.link_m3u8,
       width: "100%",
       image: media.backdrop,

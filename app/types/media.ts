@@ -1,7 +1,12 @@
 export interface MediaDetail {
     name: string,
     backdrop: string,
-    servers: Server[]
+    servers: Server[] | []
+}
+
+export interface Info {
+    name: string,
+    backdrop: string,
 }
 
 export interface Server {
