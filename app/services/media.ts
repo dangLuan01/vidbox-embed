@@ -1,17 +1,17 @@
-import { Episode, MediaDetail, Server, Subtitle } from "../types/media"
+import { Episode, Info, MediaDetail, Server, Subtitle } from "../types/media"
 
 export class Media {
     private baseUrl: string
     private baseUrlSub: string
     private baseUrlOphim: string
     private baseUrlKKphim: string
-    private baseUrlImage: string
+    private baseUrlApi: string
 
     constructor(){
+        this.baseUrlApi     = "https://api.themoviedb.org/3"
         this.baseUrl        = "https://watchapi.xoailac.top"
         this.baseUrlOphim   = "https://ophim1.com/v1/api/phim/"
         this.baseUrlKKphim  = "https://phimapi.com/phim/"
-        this.baseUrlImage   = "https://img.ophim.live/uploads/movies/"
         this.baseUrlSub     = "https://sub.wyzie.ru/search?"
     }
 
@@ -35,52 +35,94 @@ export class Media {
         }
     }
 
+    private async requestTmdb(url: string, endpoint: string) {
+        try { 
+            const res = await fetch(`${url}${endpoint}?api_key=${process.env.API_TMDB}&language=en-US`, { 
+                headers: { 
+                    // "X-API-KEY": `${process.env.API_KEY}`,
+                },
+                next: { revalidate: 600 }
+            }) 
+
+            if (!res.ok) {
+                return
+            }
+            
+            return await res.json() 
+        } catch (error) { 
+            console.error("API error:", error) 
+            return null 
+        }
+    }
+
     private parseEpisodeSlug(slug: string): string {
         const number = slug.match(/\d+/g)?.join('')
         return number ? String(Number(number)) : slug
     }
 
+    async getMediaInfo(tmdb_id: string, media_type: string): Promise<Info> {
+        const data  = await this.requestTmdb(this.baseUrlApi, `/${media_type}/${tmdb_id}`)
+        const safeData: Info = {
+            name: data.title ? data.title : data.name,
+            backdrop: data.backdrop_path
+        }
+
+        return safeData as Info
+    }
 
     async getMovieSlug(tmdb_id: string): Promise<MediaDetail> {
+        const dataInfo      = this.getMediaInfo(tmdb_id, "movie")
         const data          = await this.request(this.baseUrl, `/api/v1/movie/${tmdb_id}`)
-        const ophimData     = await this.getStreamingOphimWithSlug(data.results.ophim_slug)
+
+        const ophimData     = data.results.ophim_slug ?
+        await this.getStreamingOphimWithSlug(data.results.ophim_slug) : []
+
         const kkphimData    = data.results.kkphim_slug ? 
         await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
 
         return {
-            ...ophimData,
+            name: (await dataInfo).name,
+            backdrop:'https://image.tmdb.org/t/p/original' + (await dataInfo).backdrop,
             servers: [
-                ...ophimData.servers,
+                ...ophimData,
                 ...kkphimData
             ]
         }
     }
 
     async getTvSlug(tmdb_id: string, season: string): Promise<MediaDetail> {
-        const data = await this.request(this.baseUrl, `/api/v1/tv/${tmdb_id}/${season}`)
-        const ophimData = await this.getStreamingOphimWithSlug(data.results.ophim_slug)
+        const dataInfo      = this.getMediaInfo(tmdb_id, "tv")
+
+        const data          = await this.request(this.baseUrl, `/api/v1/tv/${tmdb_id}/${season}`)
+
+        const ophimData     = data.results.ophim_slug ?
+        await this.getStreamingOphimWithSlug(data.results.ophim_slug) : []
+
         const kkphimData    = data.results.kkphim_slug ? 
         await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
 
         return {
-            ...ophimData,
+            name: (await dataInfo).name,
+            backdrop:'https://image.tmdb.org/t/p/original' + (await dataInfo).backdrop,
             servers: [
-                ...ophimData.servers,
+                ...ophimData,
                 ...kkphimData
             ]
         }
     }
 
-    async getStreamingOphimWithSlug(slug: string): Promise<MediaDetail> {
+    async getStreamingOphimWithSlug(slug: string): Promise<Server[]> {
         const resp = await this.request(this.baseUrlOphim, slug)
         
-        const safeData: MediaDetail = {
-            name: resp.data.item.name,
-            backdrop: this.baseUrlImage + resp.data.item.poster_url,
-            servers: resp.data.item.episodes
-        }
+        const safeData: Server[] = resp.data.item.episodes.map((s: Server) =>({
+            server_name: s.server_name,
+            server_data: s.server_data.map((ep: Episode) => ({
+                ...ep,
+                slug: this.parseEpisodeSlug(ep.slug)
+            }))
+        })) 
 
-        return safeData as MediaDetail
+        return safeData as Server[] || []
     }
 
     async getStreamingKKphimWithSlug(slug: string): Promise<Server[]> {
@@ -93,7 +135,6 @@ export class Media {
                 slug: this.parseEpisodeSlug(ep.slug)
             }))
         }))
-        
         
         return safeData as Server[] || []
     }

@@ -10,7 +10,6 @@ export default async function Movie({
   const service   = new Media()
   const data      = await service.getTvSlug(tmdb_id, season)
   //const subtitles = await service.getTvSubtitle(tmdb_id, season, episode)
-  console.log(data);
   
   return <ClientPlayerTv 
           media={data} 
