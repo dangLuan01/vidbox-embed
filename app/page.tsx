@@ -1,4 +1,3 @@
-// app/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,7 +5,7 @@ import VideoPlayer from '@/app/components/VideoPlayer';
 
 export default function WatchPage() {
   const [mediaType, setMediaType] = useState<'movie' | 'tv'>('movie');
-  const [tmdbId, setTmdbId] = useState<string>('157336'); // Interstellar
+  const [tmdbId, setTmdbId] = useState<string>('157336');
   const [season, setSeason] = useState<string>('1');
   const [episode, setEpisode] = useState<string>('1');
 
@@ -124,7 +123,7 @@ export default function WatchPage() {
           </div>
           <div className="mt-6 flex justify-between items-center text-[10px] uppercase text-gray-600 font-mono tracking-widest px-4">
             <span>Video Source: vidhub</span>
-            <span>Secured Connection</span>
+            <a href='https://t.me/vidhubtop'>Report movie error with us</a>
           </div>
         </section>
       </div>

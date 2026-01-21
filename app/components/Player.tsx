@@ -44,55 +44,82 @@ export default function Player({ media, tmdb_id }: { media: MediaDetail, tmdb_id
     })
 
     instance.on("ready", () => {
-      addSeekButtons(instance)
-      const container = instance.getContainer()
+      addSeekButtons(instance);
+      
+      const container = instance.getContainer();
 
-      const overlay = document.createElement("div")
-      overlay.id = "jw-server-overlay"
+      if (container.querySelector(".jw-server-overlay")) return;
+
+      const overlay = document.createElement("div");
+      overlay.className = "jw-server-overlay jw-reset"; 
       overlay.innerHTML = `
         <div class="jw-server-panel">
           <div class="jw-server-header">
-            <span>Choose server</span>
-            <button class="jw-server-close">✕</button>
+            <span>Choose Server</span>
+            <button class="jw-server-close" type="button">×</button>
           </div>
-          <div class="jw-server-list"></div>
+          <ul class="jw-server-list"></ul>
         </div>
-      `
-      container.appendChild(overlay)
+      `;
+      container.appendChild(overlay);
 
-      const list = overlay.querySelector(".jw-server-list")!
+      const list = overlay.querySelector(".jw-server-list")!;
+      let currentFile = media.servers[0].server_data[0].link_m3u8;
 
-      media.servers.forEach(server => {
-        const item = document.createElement("div")
-        item.className = "jw-server-item"
-        item.innerText = server.server_name
-        item.onclick = () => {
-          instance.load([{ 
-            title: media.name,
-            file: server.server_data[0].link_m3u8,
-            //stretching: "fill",
-            playbackRateControls: true,
-            //tracks: subtitles
-          }])
-          instance.play()
-          overlay.classList.remove("active")
+      const renderList = () => {
+        list.innerHTML = "";
+        media.servers.forEach((server) => {
+          const link = server.server_data[0].link_m3u8;
+          const li = document.createElement("li");
+          li.className = "jw-server-item";
+          
+          if (link === currentFile) {
+            li.classList.add("current-server");
+          }
+
+          li.innerText = server.server_name;
+          
+          li.onclick = () => {
+            if (link !== currentFile) {
+              currentFile = link;
+
+              instance.load([{
+                title: media.name,
+                file: link,
+                playbackRateControls: true,
+              }]);
+
+              instance.play();              
+            }
+            overlay.classList.remove("active");
+            renderList();
+          };
+          
+          list.appendChild(li);
+        });
+      };
+
+      renderList();
+
+      overlay.querySelector(".jw-server-close")!.addEventListener("click", () => {
+        overlay.classList.remove("active");
+      });
+
+      // Sự kiện click ra ngoài thì đóng
+      overlay.addEventListener("click", (e: any) => {
+        if (e.target === overlay) {
+          overlay.classList.remove("active");
         }
-        list.appendChild(item)
-      })
+      });
 
-      overlay
-        .querySelector(".jw-server-close")!
-        .addEventListener("click", () => {
-          overlay.classList.remove("active")
-        })
-
+      // Thêm nút vào thanh điều khiển
       instance.addButton(
-        "/cloud.png",
-        "Choose server",
+        "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xOS4zNSAxMC4wNEMxOC42NyA2LjU5IDE1LjY0IDQgMTIgNCA5LjExIDQgNi42IDYuMTIgNS42MyAxMC4wNCAyLjM0IDEwLjM2IDAgMTMuMTkgMCAxNnMzLjM1IDUuNjUgNy41IDUuNjVoOS44NWM0LjI4IDAgNy41LTMuNTggNy41LTdzLTMuOTUtNi44NS03LjU1LTYuODV6bS01Ljg1IDZMMTIgMTN2NGgtMnYtNGwtMS41IDEuNUw3IDE0LjVsNS01IDUgNS0xLjUgMS41eiIvPjwvc3ZnPg==",
+        "Choose Server",
         () => overlay.classList.toggle("active"),
         "serverButton"
-      )
-    })
+      );
+    });
 
     return () => {
       try { instance.remove() } catch {}

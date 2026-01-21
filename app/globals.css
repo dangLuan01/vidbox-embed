@@ -31,89 +31,95 @@ body {
   position: fixed !important; 
 }
 
-#jw-server-overlay {
+/* --- JW Player Custom Server Selector --- */
+.jw-server-overlay {
   position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .25s ease;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: transparent; /* Không làm tối màn hình */
+  display: none;
   z-index: 9999;
 }
-
-#jw-server-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
+  
+.jw-server-overlay.active {
+  display: block !important;
 }
-
+/* Panel chính: Nằm góc phải dưới */
 .jw-server-panel {
   position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: #1f1f1f;
-  transform: translateY(100%);
-  transition: transform .25s ease;
+  bottom: 100px;
+  right: 100px;
+  width: 250px;
+  max-height: 300px;
+  background: rgba(40, 40, 40, 0.95);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(10px);
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-#jw-server-overlay.active .jw-server-panel {
+/* Khi active thì hiện rõ và trượt về vị trí cũ */
+.jw-server-overlay.active .jw-server-panel {
   transform: translateY(0);
+  opacity: 1;
 }
-
+/* Header nhỏ gọn hơn */
 .jw-server-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: #eee;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
   display: flex;
   justify-content: space-between;
-  padding: 14px 16px;
-  border-bottom: 4px solid #333;
-  color: #fff;
-  font-weight: 600;
-}
-
-.jw-server-list {
-  padding: 8px 0;
-}
-
-.jw-server-item {
-  padding: 14px 16px;
-  color: #fff;
-  cursor: pointer;
-}
-
-.jw-server-item:hover {
-  background: #2c2c2c;
+  align-items: center;
 }
 
 .jw-server-close {
-  background: none;
-  border: none;
+  background: none; border: none; color: #aaa; cursor: pointer; font-size: 20px;
+}
+.jw-server-close:hover { color: #fff; }
+.jw-server-list {
+  list-style: none; padding: 0; margin: 0; overflow-y: auto;
+  max-height: 250px; /* Scroll nếu danh sách dài */
+}
+/* Item danh sách */
+.jw-server-item {
+  padding: 8px 12px;
+  color: #ccc;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  transition: background 0.15s;
+}
+.jw-server-item:hover {
+  background: rgba(255,255,255,0.1);
   color: #fff;
-  font-size: 18px;
 }
 
-.jw-title-primary {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+.jw-server-item.current-server {
+  color: #3b82f6; /* Màu xanh (hoặc đổi thành #ff0046 nếu thích màu đỏ JW) */
+  font-weight: bold;
+  border-left-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
-.jw-title-secondary {
-  font-size: 14px;
-  opacity: 0.9;
+.jw-server-item.current-server::after {
+  content: '✓';
+  font-weight: bold;
 }
-
-.jw-title {
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(6px);
-  padding: 10px 14px;
-  border-radius: 6px;
+    
+/* Responsive: Trên mobile thì hiện ở giữa hoặc dưới đáy cho dễ bấm */
+@media (max-width: 600px) {
+  .jw-server-panel {
+    bottom: 0; 
+    right: 0; 
+    left: 0; 
+    width: 100%; 
+    border-radius: 12px 12px 0 0;
+  }
 }
-
-.jw-title {
-  animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
