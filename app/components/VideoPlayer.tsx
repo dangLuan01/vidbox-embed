@@ -11,7 +11,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   mediaType, 
   tmdbId, 
   season = '1', 
-  episode = '1' 
+  episode = '1'
 }) => {
   
   const EMBED_BASE_URL = 'https://player.xoailac.top';

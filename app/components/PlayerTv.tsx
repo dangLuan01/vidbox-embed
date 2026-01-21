@@ -27,16 +27,16 @@ export default function PlayerTv({
 
     const instance = window.jwplayer(ref.current)
 
-    const currentEp = media.servers[0].server_data.find(
+    let currentEp = media.servers[0].server_data.find(
       (e: Episode) => e.slug === episode
-    )
+    )?.link_m3u8;
 
     const STORAGE_KEY = `watchTime_${tmdb_id}_${season}_${episode}`
 
     instance.setup({
       key: "ITWMv7t88JGzI0xPwW8I0+LveiXX9SWbfdmt0ArUSyc=",
       title: "Watching: "+ media.name + " / (S" +season+ " | E" + episode +")",
-      file: currentEp?.link_m3u8,
+      file: currentEp,
       width: "100%",
       image: media.backdrop,
       //stretching: "fill",
@@ -62,60 +62,75 @@ export default function PlayerTv({
       const container = instance.getContainer()
 
       /* ========= OVERLAY ========= */
-      const overlay = document.createElement("div")
-      overlay.id = "jw-server-overlay"
+      if (container.querySelector(".jw-server-overlay")) return;
+
+      const overlay = document.createElement("div");
+      overlay.className = "jw-server-overlay jw-reset"; 
       overlay.innerHTML = `
         <div class="jw-server-panel">
           <div class="jw-server-header">
-            <span>Choose server</span>
-            <button class="jw-server-close">✕</button>
+            <span>Choose Server</span>
+            <button class="jw-server-close" type="button">×</button>
           </div>
-          <div class="jw-server-list"></div>
+          <ul class="jw-server-list"></ul>
         </div>
-      `
-      container.appendChild(overlay)
+      `;
+      container.appendChild(overlay);
 
       const list = overlay.querySelector(".jw-server-list")!
 
-      /* ========= SERVER LIST ========= */
-      media.servers.forEach(server => {
-        const ep = server.server_data.find(
-          (e: Episode) => e.slug === episode
-        )
-        if (!ep) return
+      const renderList = () => {
+        list.innerHTML = "";
+        media.servers.forEach((server) => {
+          const link = server.server_data.find((e: Episode) =>
+            e.slug === episode
+          )?.link_m3u8;
+          const li = document.createElement("li");
+          li.className = "jw-server-item";
+          
+          if (link === currentEp) {
+            li.classList.add("current-server");
+          }
 
-        const item = document.createElement("div")
-        item.className = "jw-server-item"
-        item.innerText = server.server_name
+          li.innerText = server.server_name;
+          
+          li.onclick = () => {
+            if (link !== currentEp) {
+              currentEp = link;
 
-        item.onclick = () => {
-          instance.load([{ 
-            file: ep.link_m3u8,
-            playbackRateControls: true,
-            //stretching: "fill",
-            //tracks: subtitles,
-          }])
-          instance.play()
-          overlay.classList.remove("active")
+              instance.load([{
+                title: media.name,
+                file: link,
+                playbackRateControls: true,
+              }]);
+
+              instance.play();              
+            }
+            overlay.classList.remove("active");
+            renderList();
+          };
+          
+          list.appendChild(li);
+        });
+      };
+      renderList();
+
+      overlay.querySelector(".jw-server-close")!.addEventListener("click", () => {
+        overlay.classList.remove("active");
+      });
+
+      overlay.addEventListener("click", (e: any) => {
+        if (e.target === overlay) {
+          overlay.classList.remove("active");
         }
+      });
 
-        list.appendChild(item)
-      })
-
-      /* ========= CLOSE ========= */
-      overlay
-        .querySelector(".jw-server-close")!
-        .addEventListener("click", () => {
-          overlay.classList.remove("active")
-        })
-
-      /* ========= BUTTON ========= */
       instance.addButton(
-        "/cloud.png",
-        "Choose server",
+        "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xOS4zNSAxMC4wNEMxOC42NyA2LjU5IDE1LjY0IDQgMTIgNCA5LjExIDQgNi42IDYuMTIgNS42MyAxMC4wNCAyLjM0IDEwLjM2IDAgMTMuMTkgMCAxNnMzLjM1IDUuNjUgNy41IDUuNjVoOS44NWM0LjI4IDAgNy41LTMuNTggNy41LTdzLTMuOTUtNi44NS03LjU1LTYuODV6bS01Ljg1IDZMMTIgMTN2NGgtMnYtNGwtMS41IDEuNUw3IDE0LjVsNS01IDUgNS0xLjUgMS41eiIvPjwvc3ZnPg==",
+        "Choose Server",
         () => overlay.classList.toggle("active"),
         "serverButton"
-      )
+      );
     })
 
     return () => {
