@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { Episode, Info, MediaDetail, Server, Subtitle } from "../types/media"
 
 export class Media {
@@ -71,18 +72,21 @@ export class Media {
     }
 
     async getMovieSlug(tmdb_id: string): Promise<MediaDetail> {
-        const dataInfo      = this.getMediaInfo(tmdb_id, "movie")
-        const data          = await this.request(this.baseUrl, `/api/v1/movie/${tmdb_id}`)
+        const infoPromise   = this.getMediaInfo(tmdb_id, "movie")
+        const dataPromise   = this.request(this.baseUrl, `/api/v1/movie/${tmdb_id}`)
+        const [info, data]  = await Promise.all([infoPromise, dataPromise])
+        if (!data) {
+            notFound()
+        }
 
         const ophimData     = data.results.ophim_slug ?
         await this.getStreamingOphimWithSlug(data.results.ophim_slug) : []
-
         const kkphimData    = data.results.kkphim_slug ? 
         await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
 
         return {
-            name: (await dataInfo).name,
-            backdrop:'https://image.tmdb.org/t/p/original' + (await dataInfo).backdrop,
+            name: (await info).name,
+            backdrop:'https://image.tmdb.org/t/p/original' + (await info).backdrop,
             servers: [
                 ...ophimData,
                 ...kkphimData
@@ -91,19 +95,22 @@ export class Media {
     }
 
     async getTvSlug(tmdb_id: string, season: string): Promise<MediaDetail> {
-        const dataInfo      = this.getMediaInfo(tmdb_id, "tv")
-
-        const data          = await this.request(this.baseUrl, `/api/v1/tv/${tmdb_id}/${season}`)
+        const infoPromise  = this.getMediaInfo(tmdb_id, "tv")
+        const dataPromise  = this.request(this.baseUrl, `/api/v1/tv/${tmdb_id}/${season}`)
+        const [info, data] = await Promise.all([infoPromise, dataPromise])
+        
+        if (!data) {
+            notFound()
+        }
 
         const ophimData     = data.results.ophim_slug ?
         await this.getStreamingOphimWithSlug(data.results.ophim_slug) : []
-
         const kkphimData    = data.results.kkphim_slug ? 
         await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
 
         return {
-            name: (await dataInfo).name,
-            backdrop:'https://image.tmdb.org/t/p/original' + (await dataInfo).backdrop,
+            name: (await info).name,
+            backdrop:'https://image.tmdb.org/t/p/original' + (await info).backdrop,
             servers: [
                 ...ophimData,
                 ...kkphimData
