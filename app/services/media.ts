@@ -6,6 +6,7 @@ export class Media {
     private baseUrlSub: string
     private baseUrlOphim: string
     private baseUrlKKphim: string
+    private baseUrlNguonC: string
     private baseUrlApi: string
 
     constructor(){
@@ -13,6 +14,7 @@ export class Media {
         this.baseUrl        = "https://watchapi.xoailac.top"
         this.baseUrlOphim   = "https://ophim1.com/v1/api/phim/"
         this.baseUrlKKphim  = "https://phimapi.com/phim/"
+        this.baseUrlNguonC  = "https://phim.nguonc.com/api/film/"
         this.baseUrlSub     = "https://sub.wyzie.ru/search?"
     }
 
@@ -83,13 +85,16 @@ export class Media {
         await this.getStreamingOphimWithSlug(data.results.ophim_slug) : []
         const kkphimData    = data.results.kkphim_slug ? 
         await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
+        const nguoncData    = data.results.nguonc_slug ?
+        await this.getStreamingNgonCWithSlug(data.results.nguonc_slug) : []
 
         return {
             name: (await info).name,
             backdrop:'https://image.tmdb.org/t/p/original' + (await info).backdrop,
             servers: [
                 ...ophimData,
-                ...kkphimData
+                ...kkphimData,
+                ...nguoncData
             ]
         }
     }
@@ -107,13 +112,16 @@ export class Media {
         await this.getStreamingOphimWithSlug(data.results.ophim_slug) : []
         const kkphimData    = data.results.kkphim_slug ? 
         await this.getStreamingKKphimWithSlug(data.results.kkphim_slug) : []
+        const nguoncData    = data.results.nguonc_slug ?
+        await this.getStreamingNgonCWithSlug(data.results.nguonc_slug) : []
 
         return {
             name: (await info).name,
             backdrop:'https://image.tmdb.org/t/p/original' + (await info).backdrop,
             servers: [
                 ...ophimData,
-                ...kkphimData
+                ...kkphimData,
+                ...nguoncData
             ]
         }
     }
@@ -139,6 +147,20 @@ export class Media {
             server_name: s.server_name,
             server_data: s.server_data.map((ep: Episode) => ({
                 ...ep,
+                slug: this.parseEpisodeSlug(ep.slug)
+            }))
+        }))
+        
+        return safeData as Server[] || []
+    }
+
+    async getStreamingNgonCWithSlug(slug: string): Promise<Server[]> {
+        const resp = await this.request(this.baseUrlNguonC, slug)
+        
+        const safeData: Server[] = resp.movie.episodes.map((s: any) => ({
+            server_name: '#Đà Đẵng ' +'(' + s.server_name + ')',
+            server_data: s.items.map((ep: any) => ({
+                link_m3u8: ep.embed,
                 slug: this.parseEpisodeSlug(ep.slug)
             }))
         }))
