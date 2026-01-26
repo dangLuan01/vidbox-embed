@@ -133,11 +133,11 @@ export default function PlayerTv({
   };
 
   return (
-    <div className="player-page" style={{ position: "relative", width: "100%", height: "100%", aspectRatio: "16/9", background: "#000" }}>
+    <div className="player-page">
       
       {/* === PHẦN HIỂN THỊ PLAYER === */}
       {isEmbed ? (
-        <div className="jw-wrapper" style={{ width: "100%", height: "100%", position: "relative" }}>
+        <div className="jw-wrapper">
            {/* Nút Server cho chế độ Embed (Vì iframe che mất mọi thứ nên cần nút nổi) */}
            <button 
               onClick={() => setShowServerList(true)}
@@ -158,8 +158,10 @@ export default function PlayerTv({
                 gap: "5px"
               }}
            >
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 6.12 5.63 10.04 2.34 10.36 0 13.19 0 16s3.35 5.65 7.5 5.65h9.85c4.28 0 7.5-3.58 7.5-7s-3.95-6.85-7.55-6.85zm-5.85 6L12 13v4h-2v-4l-1.5 1.5L7 14.5l5-5 5 5-1.5 1.5z"/></svg>
-             Server
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 6.12 5.63 10.04 2.34 10.36 0 13.19 0 16s3.35 5.65 7.5 5.65h9.85c4.28 0 7.5-3.58 7.5-7s-3.95-6.85-7.55-6.85zm-5.85 6L12 13v4h-2v-4l-1.5 1.5L7 14.5l5-5 5 5-1.5 1.5z"/>
+            </svg>
+              Server
            </button>
            <iframe src={currentUrl} allowFullScreen style={{ width: "100%", height: "100%", border: "none" }} /> 
         </div>
@@ -175,29 +177,19 @@ export default function PlayerTv({
              // Đóng khi click ra ngoài panel
              if(e.target === e.currentTarget) setShowServerList(false)
           }}
-          style={{
-            position: "absolute",
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.8)",
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
         >
-          <div className="jw-server-panel" style={{ background: "#222", padding: "20px", borderRadius: "8px", width: "300px", maxWidth: "90%" }}>
-            <div className="jw-server-header" style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px", color: "#fff", borderBottom: "1px solid #444", paddingBottom: "10px" }}>
+          <div className="jw-server-panel">
+            <div className="jw-server-header">
               <span style={{ fontWeight: "bold" }}>Choose Server</span>
               <button 
                 type="button" 
                 onClick={() => setShowServerList(false)}
-                style={{ background: "none", border: "none", color: "#fff", fontSize: "20px", cursor: "pointer" }}
               >
                 ×
               </button>
             </div>
             
-            <ul className="jw-server-list" style={{ listStyle: "none", padding: 0, margin: 0, maxHeight: "300px", overflowY: "auto" }}>
+            <ul className="jw-server-list">
               {media.servers.map((server, idx) => {
                 const link = server.server_data.find((e: Episode) => e.slug === episode)?.link_m3u8;
                 if (!link) return null;
@@ -209,15 +201,6 @@ export default function PlayerTv({
                     key={idx}
                     className={`jw-server-item ${isActive ? "current-server" : ""}`}
                     onClick={() => handleSelectServer(link)}
-                    style={{
-                      padding: "10px",
-                      background: isActive ? "#d93025" : "#333",
-                      color: "#fff",
-                      marginBottom: "5px",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                      transition: "background 0.2s"
-                    }}
                   >
                     {server.server_name}
                   </li>
