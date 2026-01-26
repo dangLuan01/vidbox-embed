@@ -69,20 +69,22 @@ export default function PlayerTv({
       if (saved) instance.seek(parseFloat(saved)) 
     })
 
+    let lastSave = 0;
     instance.on("time", () => { 
-      const pos = instance.getPosition() 
-      localStorage.setItem(STORAGE_KEY, pos.toString()) 
+      const pos = instance.getPosition()
+      if (pos - lastSave >= 5) { 
+        localStorage.setItem(STORAGE_KEY, pos.toString()); 
+        lastSave = pos; 
+      }
     })
 
     instance.on("ready", () => {
       addSeekButtons(instance)
-      
-      // Thêm nút "Server" vào thanh điều khiển của JWPlayer
-      // Khi bấm sẽ gọi React State để mở Overlay
+
       instance.addButton(
         "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xOS4zNSAxMC4wNEMxOC42NyA2LjU5IDE1LjY0IDQgMTIgNCA5LjExIDQgNi42IDYuMTIgNS42MyAxMC4wNCAyLjM0IDEwLjM2IDAgMTMuMTkgMCAxNnMzLjM1IDUuNjUgNy41IDUuNjVoOS44NWM0LjI4IDAgNy41LTMuNTggNy41LTdzLTMuOTUtNi44NS03LjU1LTYuODV6bS01Ljg1IDZMMTIgMTN2NGgtMnYtNGwtMS41IDEuNUw3IDE0LjVsNS01IDUgNS0xLjUgMS41eiIvPjwvc3ZnPg==",
         "Choose Server",
-        () => setShowServerList(true), // Kích hoạt React State
+        () => setShowServerList(true),
         "serverButton"
       );
     })
