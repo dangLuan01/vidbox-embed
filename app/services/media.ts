@@ -131,11 +131,11 @@ export class Media {
         
         const safeData: Server[] = resp.data.item.episodes.map((s: Server) =>({
             server_name: s.server_name,
-            server_data: s.server_data.map((ep: Episode) => ({
+            server_data: s.server_data.filter((ep: Episode) => ep.link_m3u8 !== "").map((ep: Episode) => ({
                 ...ep,
                 slug: this.parseEpisodeSlug(ep.slug)
             }))
-        })) 
+        })).filter((s: Server) => s.server_data.length > 0)
 
         return safeData as Server[] || []
     }
@@ -145,11 +145,11 @@ export class Media {
         
         const safeData: Server[] = resp.episodes.map((s: Server) => ({
             server_name: s.server_name,
-            server_data: s.server_data.map((ep: Episode) => ({
+            server_data: s.server_data.filter((ep: Episode) => ep.link_m3u8 !== "").map((ep: Episode) => ({
                 ...ep,
                 slug: this.parseEpisodeSlug(ep.slug)
             }))
-        }))
+        })).filter((s: Server) => s.server_data.length > 0)
         
         return safeData as Server[] || []
     }
