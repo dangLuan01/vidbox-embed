@@ -11,6 +11,7 @@ export default async function Movie({
   const service     = new Media()
   const data        = await service.getMovieSlug(tmdb_id)
   //const subtitles   = await service.getMovieSubtitle(tmdb_id)
+  console.log(data);
   
   return <ClientPlayer media={data} tmdb_id={tmdb_id}/>
 }

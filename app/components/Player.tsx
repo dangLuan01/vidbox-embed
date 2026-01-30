@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Episode, MediaDetail } from "@/app/types/media"
+import { MediaDetail } from "@/app/types/media"
 
 declare global {
   interface Window {
@@ -18,14 +18,11 @@ export default function PlayerTv({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   
-  // State quản lý link hiện tại và loại player
   const [currentUrl, setCurrentUrl] = useState<string>("")
   const [isEmbed, setIsEmbed] = useState(false)
   
-  // State hiển thị danh sách server
   const [showServerList, setShowServerList] = useState(false)
-
-  // Khởi tạo link ban đầu khi vào trang
+  
   useEffect(() => {
     const initLink = media.servers[0]?.server_data[0]?.link_m3u8;
 
@@ -35,11 +32,9 @@ export default function PlayerTv({
     }
   }, [media])
 
-  // Xử lý JWPlayer (Chỉ chạy khi KHÔNG PHẢI là embed và có link m3u8)
   useEffect(() => {
     if (isEmbed || !currentUrl || !ref.current || !window.jwplayer) return
 
-    // Clean up player cũ nếu có
     try {
       if (window.jwplayer(ref.current)) window.jwplayer(ref.current).remove();
     } catch {}
@@ -49,7 +44,7 @@ export default function PlayerTv({
 
     instance.setup({
       key: "ITWMv7t88JGzI0xPwW8I0+LveiXX9SWbfdmt0ArUSyc=",
-      title: `Watching: ${media.name}`,
+      title: media.name,
       file: currentUrl,
       width: "100%",
       image: media.backdrop,
@@ -57,10 +52,9 @@ export default function PlayerTv({
       playbackRateControls: true,
     })
     
-    // Khôi phục thời gian xem
     instance.on("beforePlay", () => { 
       const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) instance.seek(parseFloat(saved)) 
+      if (saved) instance.seek(parseFloat(saved))
     })
 
     let lastSave = 0;
